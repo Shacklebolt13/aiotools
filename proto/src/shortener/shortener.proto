@@ -1,0 +1,28 @@
+syntax = "proto3";
+package shortener;
+
+option optimize_for = SPEED;
+option go_package = "proto/generated/shortener";
+
+message ShortenRequest {
+    string url = 1;
+}
+
+message ShortenResponse {
+    string id = 1;
+    optional string error = 2;
+}
+
+message ExpandRequest {
+    string id = 1;
+}
+
+message ExpandResponse {
+    string url = 1;
+    optional string error = 2;
+}
+
+service ShortenerService { 
+    rpc shorten (ShortenRequest) returns (ShortenResponse);
+    rpc expand (ExpandRequest) returns (ExpandResponse);
+}

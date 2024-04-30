@@ -1,0 +1,4 @@
+syntax = "proto3";
+import "proto/src/shortener/shortener.proto";
+
+option go_package = "proto/generated";
