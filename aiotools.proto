@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option go_package = "aiotools/proto";
+
+message ShortenRequest {
+    string url = 1;
+}
+
+message ShortenResponse {
+    string id = 1;
+}
+
+message ExpandRequest {
+    string id = 1;
+}
+
+message ExpandResponse {
+    string url = 1;
+}
+
+service ShortenerService { 
+    rpc shorten (ShortenRequest) returns (ShortenResponse){};
+    rpc expand (ExpandRequest) returns (ExpandResponse){};
+}
