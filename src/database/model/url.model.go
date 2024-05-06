@@ -10,16 +10,11 @@ import (
 
 type URLBase struct {
 	gorm.Model
-	ID  string `gorm:"primaryKey"`
 	Url string
 }
 
-func (model *URLBase) GetId() string {
-	return model.ID
-}
-
 type URLBaseRepository interface {
-	GetById(id string) (*URLBase, error)
+	GetById(id uint) (*URLBase, error)
 	Insert(url string) (*URLBase, error)
 }
 
@@ -31,7 +26,7 @@ func NewURLBaseRepository(database *database.Database) URLBaseRepository {
 	return &urlBaseRepositoryImpl{database}
 }
 
-func (repo *urlBaseRepositoryImpl) GetById(id string) (*URLBase, error) {
+func (repo *urlBaseRepositoryImpl) GetById(id uint) (*URLBase, error) {
 	urlMap := &URLBase{}
 	transaction := repo.Conn.First(urlMap, id)
 	if transaction.Error != nil {

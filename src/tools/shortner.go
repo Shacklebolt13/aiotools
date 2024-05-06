@@ -23,7 +23,7 @@ var CHARSET_MAP = map[rune]int{
 	'Y': 60, 'Z': 61,
 }
 
-func Shorten(id int) string {
+func Shorten(id uint) string {
 	var short string
 	for id > 0 {
 		short = string(CHARSET[id%BASE]) + short
@@ -32,7 +32,7 @@ func Shorten(id int) string {
 	return short
 }
 
-func Expand(short string) (int, error) {
+func Expand(short string) (uint, error) {
 	var id int
 	for _, c := range short {
 		if _, ok := CHARSET_MAP[c]; !ok {
@@ -40,5 +40,5 @@ func Expand(short string) (int, error) {
 		}
 		id = id*BASE + CHARSET_MAP[c]
 	}
-	return id, nil
+	return uint(id), nil
 }
