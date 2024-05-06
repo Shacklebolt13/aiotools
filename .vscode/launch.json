@@ -10,9 +10,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            "env": {
-                "DSN": "host=localhost user=postgres password=gagan dbname=aiotools port=5432 sslmode=disable TimeZone=Asia/Kolkata",
-            }
+            "envFile": "${workspaceFolder}/.env",
         }
     ]
 }
