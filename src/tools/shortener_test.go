@@ -41,7 +41,7 @@ func TestExpandId_WhenInvalidInput_ThenError(t *testing.T) {
 }
 
 func TestLongRandom(t *testing.T) {
-	for i := 0; i < 1000000; i++ {
+	for i := uint(0); i < 1000000; i++ {
 		short := shortener.Shorten(i)
 		result, e := shortener.Expand(short)
 		if e != nil {

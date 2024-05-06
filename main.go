@@ -2,44 +2,72 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net"
-	"os"
 
 	"google.golang.org/grpc"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	pb "aiotools/proto"
-	"aiotools/src/database"
-	shortenService "aiotools/src/services"
+	"aiotools/src/handlers"
 )
 
 var port = flag.Int("port", 50051, "The server port")
+var dsn = flag.String("dsn", "", "The database connection string")
+
+type Application interface {
+	Run(listener net.Listener)
+}
+
+type ApplicationImpl struct {
+	server         *grpc.Server
+	shortenHandler *handlers.ShortenerServiceHandler
+	config         map[string]string
+	database       *gorm.DB
+}
+
+func NewApplication(server *grpc.Server, shortenHandler *handlers.ShortenerServiceHandler, dbConn *gorm.DB, config map[string]string) Application {
+	return &ApplicationImpl{
+		server:         server,
+		database:       dbConn,
+		shortenHandler: shortenHandler,
+		config:         config,
+	}
+}
+
+func (app *ApplicationImpl) Run(listener net.Listener) {
+	log.Printf("server listening at %v", listener.Addr())
+	if err := app.server.Serve(listener); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
+
+}
 
 func main() {
 	flag.Parse()
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	s := grpc.NewServer()
 
-	// fetch dsn from env vars
-	dsn := os.Getenv("DSN")
+	NewApplication()
 
-	conn, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatalf("failed to connect to database: %v", err)
-	}
-	db := database.NewDatabase(conn)
+	// application := InitializeApp()
 
-	// register services
-	pb.RegisterShortenerServiceServer(s, shortenService.NewShortenerService(db))
+	// // create a listener
+	// lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	// if err != nil {
+	// 	log.Fatalf("failed to listen: %v", err)
+	// }
 
-	log.Printf("server listening at %v", lis.Addr())
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+	// In
+
+	// // create config
+	// config := map[string]string{
+	// 	"DSN": os.Getenv("DSN"),
+	// }
+
+	// conn, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	// if err != nil {
+	// 	log.Fatalf("failed to connect to database: %v", err)
+	// }
+
+	// // register services
+	// pb.RegisterShortenerServiceServer(s, handlers.NewShortenerServiceHandler(db))
+
 }

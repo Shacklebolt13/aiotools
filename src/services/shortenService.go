@@ -1,37 +1,34 @@
 package services
 
 import (
-	pb "aiotools/proto"
-	"context"
-	"log"
-
-	database "aiotools/src/database"
-	model "aiotools/src/database/model"
-	tools "aiotools/src/tools"
+	"aiotools/src/database/model"
+	"aiotools/src/tools"
 )
 
-type shortenerService struct {
-	pb.UnimplementedShortenerServiceServer
-	urlRepo model.URLBaseRepository
+type ShortenService interface {
+	Shorten(url string) (string, error)
+	Expand(id string) (string, error)
 }
 
-func NewShortenerService(db *database.Database) *shortenerService {
-	return &shortenerService{urlRepo: model.NewURLBaseRepository(db)}
+type ShortenServiceImpl struct {
+	repository model.URLBaseRepository
 }
 
-func (service *shortenerService) Shorten(ctx context.Context, in *pb.ShortenRequest) (*pb.ShortenResponse, error) {
-	log.Printf("Received: %v", in.GetUrl())
-	urlObj, err := service.urlRepo.Insert(in.GetUrl())
+func NewShortenService(repository model.URLBaseRepository) ShortenService {
+	return &ShortenServiceImpl{repository: repository}
+}
+
+func (service *ShortenServiceImpl) Shorten(url string) (string, error) {
+	urlObj, err := service.repository.Insert(url)
 	shortUrl := tools.Shorten(urlObj.ID)
-	return &pb.ShortenResponse{Id: shortUrl}, err
+	return shortUrl, err
 }
 
-func (service *shortenerService) Expand(ctx context.Context, in *pb.ExpandRequest) (*pb.ExpandResponse, error) {
-	log.Printf("Received: %v", in.GetId())
-	id, err := tools.Expand(in.GetId())
+func (service *ShortenServiceImpl) Expand(shortUrl string) (string, error) {
+	id, err := tools.Expand(shortUrl)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	urlObj, err := service.urlRepo.GetById(id)
-	return &pb.ExpandResponse{Url: urlObj.Url}, err
+	urlObj, err := service.repository.GetById(id)
+	return urlObj.Url, err
 }
