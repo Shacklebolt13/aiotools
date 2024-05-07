@@ -3,15 +3,42 @@
 
 package main
 
-import "github.com/google/wire"
+import (
+	"aiotools/src/database"
+	"aiotools/src/database/model"
+	"aiotools/src/handlers"
+	"aiotools/src/services"
 
-func InitializeApp() Application {
+	"github.com/google/wire"
+	"google.golang.org/grpc"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+)
+
+func newDialector(conf AppConfig) gorm.Dialector {
+	return postgres.Open(conf.DSN)
+}
+func InitializeApp(severOpts []grpc.ServerOption, gormOpts []gorm.Option, conf AppConfig) (ApplicationImpl, error) {
 	wire.Build(
+		//application (to be injected)
 		NewApplication,
-		NewServer,
-		NewShortenerServiceHandler,
-		NewDBConnection,
-		wire.Bind(new(Application), new(*ApplicationImpl)),
+
+		//handlers
+		handlers.NewShortenerServiceHandler,
+
+		//services
+		services.NewShortenService,
+
+		//repositories
+		model.NewURLBaseRepository,
+
+		//db and gorm
+		database.NewDatabase,
+		gorm.Open,
+		newDialector,
+
+		//grpc
+		grpc.NewServer,
 	)
-	return &ApplicationImpl{}
+	return ApplicationImpl{}, nil
 }
