@@ -6,21 +6,32 @@ import (
 	"log"
 	"net"
 	"os"
+	"strconv"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"gorm.io/gorm"
 )
 
 var port = os.Getenv("PORT")
 var dsn = os.Getenv("DSN")
+var parseBool = func(s string) bool {
+	b, err := strconv.ParseBool(s)
+	if err != nil {
+		log.Fatalf("failed to parse bool: %v", err)
+	}
+	return b
+}
+var enableReflection = os.Getenv("ENABLE_REFLECTION")
 
 type Application interface {
 	Run(listener net.Listener)
 }
 
 type AppConfig struct {
-	DSN  string
-	PORT string
+	DSN     string
+	PORT    string
+	REFLECT bool
 }
 type ApplicationImpl struct {
 	server         *grpc.Server
@@ -47,6 +58,10 @@ func NewApplication(
 	config AppConfig,
 ) ApplicationImpl {
 	proto.RegisterShortenerServiceServer(server, shortenHandler)
+	proto.RegisterPubSubServiceServer(server, pubSubHandler)
+	if config.REFLECT == true {
+		reflection.Register(server)
+	}
 	return ApplicationImpl{
 		server:         server,
 		shortenHandler: &shortenHandler,
@@ -56,10 +71,11 @@ func NewApplication(
 }
 
 func main() {
-	application, err := InitializeApp([]grpc.ServerOption{}, []gorm.Option{nil, nil},
+	application, err := InitializeApp([]grpc.ServerOption{}, []gorm.Option{},
 		AppConfig{
-			DSN:  dsn,
-			PORT: port,
+			DSN:     dsn,
+			PORT:    port,
+			REFLECT: parseBool(enableReflection),
 		},
 	)
 	if err != nil {
