@@ -25,6 +25,7 @@ type AppConfig struct {
 type ApplicationImpl struct {
 	server         *grpc.Server
 	shortenHandler *proto.ShortenerServiceServer
+	pubSubHandler  *proto.PubSubServiceServer
 	config         AppConfig
 }
 
@@ -42,12 +43,14 @@ func (app *ApplicationImpl) Run() {
 func NewApplication(
 	server *grpc.Server,
 	shortenHandler proto.ShortenerServiceServer,
+	pubSubHandler proto.PubSubServiceServer,
 	config AppConfig,
 ) ApplicationImpl {
 	proto.RegisterShortenerServiceServer(server, shortenHandler)
 	return ApplicationImpl{
 		server:         server,
 		shortenHandler: &shortenHandler,
+		pubSubHandler:  &pubSubHandler,
 		config:         config,
 	}
 }

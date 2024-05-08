@@ -29,7 +29,9 @@ func InitializeApp(severOpts []grpc.ServerOption, gormOpts []gorm.Option, conf A
 	urlBaseRepository := model.NewURLBaseRepository(databaseDatabase)
 	shortenService := services.NewShortenService(urlBaseRepository)
 	shortenerServiceServer := handlers.NewShortenerServiceHandler(shortenService)
-	applicationImpl := NewApplication(server, shortenerServiceServer, conf)
+	topicService := services.NewTopicService()
+	pubSubServiceServer := handlers.NewPubSubServiceHandler(topicService)
+	applicationImpl := NewApplication(server, shortenerServiceServer, pubSubServiceServer, conf)
 	return applicationImpl, nil
 }
 

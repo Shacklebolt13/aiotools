@@ -139,3 +139,189 @@ var ShortenerService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "aiotools.proto",
 }
+
+// PubSubServiceClient is the client API for PubSubService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type PubSubServiceClient interface {
+	CreateTopic(ctx context.Context, in *CreateTopicRequest, opts ...grpc.CallOption) (*CreateTopicResponse, error)
+	Subscribe(ctx context.Context, in *SubscribeRequest, opts ...grpc.CallOption) (PubSubService_SubscribeClient, error)
+	Publish(ctx context.Context, in *PublishRequest, opts ...grpc.CallOption) (*PublishResponse, error)
+}
+
+type pubSubServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewPubSubServiceClient(cc grpc.ClientConnInterface) PubSubServiceClient {
+	return &pubSubServiceClient{cc}
+}
+
+func (c *pubSubServiceClient) CreateTopic(ctx context.Context, in *CreateTopicRequest, opts ...grpc.CallOption) (*CreateTopicResponse, error) {
+	out := new(CreateTopicResponse)
+	err := c.cc.Invoke(ctx, "/PubSubService/createTopic", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pubSubServiceClient) Subscribe(ctx context.Context, in *SubscribeRequest, opts ...grpc.CallOption) (PubSubService_SubscribeClient, error) {
+	stream, err := c.cc.NewStream(ctx, &PubSubService_ServiceDesc.Streams[0], "/PubSubService/subscribe", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &pubSubServiceSubscribeClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type PubSubService_SubscribeClient interface {
+	Recv() (*SubscribeResponse, error)
+	grpc.ClientStream
+}
+
+type pubSubServiceSubscribeClient struct {
+	grpc.ClientStream
+}
+
+func (x *pubSubServiceSubscribeClient) Recv() (*SubscribeResponse, error) {
+	m := new(SubscribeResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *pubSubServiceClient) Publish(ctx context.Context, in *PublishRequest, opts ...grpc.CallOption) (*PublishResponse, error) {
+	out := new(PublishResponse)
+	err := c.cc.Invoke(ctx, "/PubSubService/publish", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// PubSubServiceServer is the server API for PubSubService service.
+// All implementations must embed UnimplementedPubSubServiceServer
+// for forward compatibility
+type PubSubServiceServer interface {
+	CreateTopic(context.Context, *CreateTopicRequest) (*CreateTopicResponse, error)
+	Subscribe(*SubscribeRequest, PubSubService_SubscribeServer) error
+	Publish(context.Context, *PublishRequest) (*PublishResponse, error)
+	mustEmbedUnimplementedPubSubServiceServer()
+}
+
+// UnimplementedPubSubServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedPubSubServiceServer struct {
+}
+
+func (UnimplementedPubSubServiceServer) CreateTopic(context.Context, *CreateTopicRequest) (*CreateTopicResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTopic not implemented")
+}
+func (UnimplementedPubSubServiceServer) Subscribe(*SubscribeRequest, PubSubService_SubscribeServer) error {
+	return status.Errorf(codes.Unimplemented, "method Subscribe not implemented")
+}
+func (UnimplementedPubSubServiceServer) Publish(context.Context, *PublishRequest) (*PublishResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Publish not implemented")
+}
+func (UnimplementedPubSubServiceServer) mustEmbedUnimplementedPubSubServiceServer() {}
+
+// UnsafePubSubServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PubSubServiceServer will
+// result in compilation errors.
+type UnsafePubSubServiceServer interface {
+	mustEmbedUnimplementedPubSubServiceServer()
+}
+
+func RegisterPubSubServiceServer(s grpc.ServiceRegistrar, srv PubSubServiceServer) {
+	s.RegisterService(&PubSubService_ServiceDesc, srv)
+}
+
+func _PubSubService_CreateTopic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTopicRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PubSubServiceServer).CreateTopic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/PubSubService/createTopic",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PubSubServiceServer).CreateTopic(ctx, req.(*CreateTopicRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PubSubService_Subscribe_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(SubscribeRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(PubSubServiceServer).Subscribe(m, &pubSubServiceSubscribeServer{stream})
+}
+
+type PubSubService_SubscribeServer interface {
+	Send(*SubscribeResponse) error
+	grpc.ServerStream
+}
+
+type pubSubServiceSubscribeServer struct {
+	grpc.ServerStream
+}
+
+func (x *pubSubServiceSubscribeServer) Send(m *SubscribeResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _PubSubService_Publish_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PublishRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PubSubServiceServer).Publish(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/PubSubService/publish",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PubSubServiceServer).Publish(ctx, req.(*PublishRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// PubSubService_ServiceDesc is the grpc.ServiceDesc for PubSubService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var PubSubService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "PubSubService",
+	HandlerType: (*PubSubServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "createTopic",
+			Handler:    _PubSubService_CreateTopic_Handler,
+		},
+		{
+			MethodName: "publish",
+			Handler:    _PubSubService_Publish_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "subscribe",
+			Handler:       _PubSubService_Subscribe_Handler,
+			ServerStreams: true,
+		},
+	},
+	Metadata: "aiotools.proto",
+}

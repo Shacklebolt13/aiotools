@@ -25,9 +25,11 @@ func InitializeApp(severOpts []grpc.ServerOption, gormOpts []gorm.Option, conf A
 
 		//handlers
 		handlers.NewShortenerServiceHandler,
+		handlers.NewPubSubServiceHandler,
 
 		//services
 		services.NewShortenService,
+		services.NewTopicService,
 
 		//repositories
 		model.NewURLBaseRepository,

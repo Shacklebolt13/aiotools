@@ -2,6 +2,7 @@ syntax = "proto3";
 
 option go_package = "aiotools/proto";
 
+//  url shortener service
 message ShortenRequest {
     string url = 1;
 }
@@ -21,4 +22,34 @@ message ExpandResponse {
 service ShortenerService { 
     rpc shorten (ShortenRequest) returns (ShortenResponse){};
     rpc expand (ExpandRequest) returns (ExpandResponse){};
+}
+
+//pub-sub service
+message CreateTopicRequest {
+}
+message CreateTopicResponse {
+    string topic = 1;
+}
+
+message SubscribeRequest {
+    string topic = 1;
+}
+
+message PublishRequest {
+    string topic = 1;
+    string message = 2;
+}
+
+message SubscribeResponse {
+    string message = 1;
+}
+
+message PublishResponse {
+}
+
+service PubSubService {
+    rpc createTopic (CreateTopicRequest) returns (CreateTopicResponse){};
+    rpc subscribe (SubscribeRequest) returns (stream SubscribeResponse){};
+    rpc publish (PublishRequest) returns (PublishResponse){};
+    
 }
