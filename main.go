@@ -18,7 +18,7 @@ var dsn = os.Getenv("DSN")
 var parseBool = func(s string) bool {
 	b, err := strconv.ParseBool(s)
 	if err != nil {
-		log.Fatalf("failed to parse bool: %v", err)
+		return false
 	}
 	return b
 }
@@ -59,7 +59,7 @@ func NewApplication(
 ) ApplicationImpl {
 	proto.RegisterShortenerServiceServer(server, shortenHandler)
 	proto.RegisterPubSubServiceServer(server, pubSubHandler)
-	if config.REFLECT == true {
+	if config.REFLECT {
 		reflection.Register(server)
 	}
 	return ApplicationImpl{

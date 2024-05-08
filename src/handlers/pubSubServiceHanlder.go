@@ -15,7 +15,9 @@ type PubSubServiceHandler struct {
 
 func NewPubSubServiceHandler(
 	topicService services.TopicService) proto.PubSubServiceServer {
-	return &PubSubServiceHandler{}
+	return &PubSubServiceHandler{
+		topicService: topicService,
+	}
 }
 
 func (pubSubHandler *PubSubServiceHandler) CreateTopic(ctx context.Context, CreateTopicRequest *proto.CreateTopicRequest) (*proto.CreateTopicResponse, error) {
@@ -27,7 +29,7 @@ func (pubSubHandler *PubSubServiceHandler) CreateTopic(ctx context.Context, Crea
 }
 
 func (pubSubHandler *PubSubServiceHandler) Subscribe(subRequest *proto.SubscribeRequest, subServer proto.PubSubService_SubscribeServer) error {
-	id, err := uuid.FromBytes([]byte(subRequest.Topic))
+	id, err := uuid.Parse(subRequest.Topic)
 	if err != nil {
 		return err
 	}
@@ -35,7 +37,7 @@ func (pubSubHandler *PubSubServiceHandler) Subscribe(subRequest *proto.Subscribe
 }
 
 func (pubSubHandler *PubSubServiceHandler) Publish(ctx context.Context, publishRequest *proto.PublishRequest) (*proto.PublishResponse, error) {
-	id, err := uuid.FromBytes([]byte(publishRequest.Topic))
+	id, err := uuid.Parse(publishRequest.Topic)
 
 	if err != nil {
 		return nil, err
