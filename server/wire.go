@@ -4,10 +4,10 @@
 package main
 
 import (
-	"aiotools/src/database"
-	"aiotools/src/database/model"
-	"aiotools/src/handlers"
-	"aiotools/src/services"
+	"aiotools/server/internal/database"
+	"aiotools/server/internal/database/model"
+	"aiotools/server/internal/handlers"
+	"aiotools/server/internal/services"
 
 	"github.com/google/wire"
 	"google.golang.org/grpc"

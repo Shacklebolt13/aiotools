@@ -1,7 +1,7 @@
 package tools_test
 
 import (
-	shortener "aiotools/src/tools"
+	shortener "aiotools/server/internal/tools"
 	"testing"
 )
 

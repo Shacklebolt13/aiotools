@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"aiotools/proto"
-	"aiotools/src/services"
+	"aiotools/server/internal/services"
 	"context"
 
 	"github.com/google/uuid"

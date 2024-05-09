@@ -5,7 +5,7 @@ import (
 	"context"
 	"log"
 
-	"aiotools/src/services"
+	"aiotools/server/internal/services"
 )
 
 type ShortenerServiceHandler struct {

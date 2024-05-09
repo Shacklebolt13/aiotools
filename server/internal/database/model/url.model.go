@@ -3,7 +3,7 @@ package model
 import (
 	"log"
 
-	database "aiotools/src/database"
+	database "aiotools/server/internal/database"
 
 	"gorm.io/gorm"
 )

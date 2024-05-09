@@ -1,8 +1,8 @@
 package services
 
 import (
-	"aiotools/src/database/model"
-	"aiotools/src/tools"
+	"aiotools/server/internal/database/model"
+	"aiotools/server/internal/tools"
 )
 
 type ShortenService interface {
